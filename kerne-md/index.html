@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KERNE.md — Personal Organization Infrastructure</title>
+<meta property="og:title" content="KERNE.md — Personal Organization Infrastructure">
+<meta property="og:description" content="A schema for making AI read your organizations the way you actually think about them. Turn scattered chaos into a structured, queryable knowledge graph in one evening.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://larsen-max.github.io/showcase/kerne-md/">
+<meta property="og:image" content="https://larsen-max.github.io/showcase/kerne-md/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="theme-color" content="#4ade80">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090d;
+  --bg-2: #0b0f15;
+  --surface: #0f141c;
+  --surface-2: #151b24;
+  --border: #1e2632;
+  --border-2: #2a3444;
+  --text: #dee5ee;
+  --text-dim: #8a94a3;
+  --text-faint: #475263;
+  --accent: #4ade80;
+  --accent-dim: #22c55e;
+  --accent-glow: rgba(74, 222, 128, 0.15);
+  --accent-soft: rgba(74, 222, 128, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(74, 222, 128, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 40% at 85% 15%, rgba(34, 197, 94, 0.04) 0%, transparent 60%),
+    linear-gradient(0deg, var(--bg) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 24px 160px;
+}
+
+/* Hero */
+.hero {
+  padding: 40px 0 80px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 80px;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.1s forwards;
+}
+
+.ascii {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--accent);
+  white-space: pre;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+  overflow-x: auto;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(40px, 6vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.3s forwards;
+}
+
+h1 .gradient {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 60%, #16a34a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+}
+
+.subtitle {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-width: 640px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.4s forwards;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-faint);
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.5s forwards;
+}
+
+.hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+.hero-meta .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 10px var(--accent);
+}
+
+/* Sections */
+section { margin-bottom: 100px; }
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::before {
+  content: '';
+  width: 24px; height: 1px; background: var(--accent);
+}
+
+h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin-bottom: 24px;
+}
+
+h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  margin-bottom: 12px;
+  margin-top: 24px;
+  color: var(--text);
+}
+
+p {
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+p strong { color: var(--text); font-weight: 600; }
+p em { color: var(--accent); font-style: normal; font-weight: 500; }
+
+.lead {
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 32px;
+  max-width: 680px;
+}
+
+/* Cards */
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 32px 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover {
+  border-color: var(--border-2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px -12px var(--accent-glow);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-soft) 0%, transparent 40%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card:hover::before { opacity: 1; }
+
+.card-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.card-body {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* Code blocks */
+pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 20px 0 32px;
+  position: relative;
+}
+pre::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.yaml-key { color: #7dd3fc; }
+.yaml-val { color: #fbbf24; }
+.yaml-comment { color: var(--text-faint); font-style: italic; }
+.header-marker { color: var(--accent); font-weight: 600; }
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+/* Comparison table */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 24px 0;
+}
+.compare > div {
+  background: var(--surface);
+  padding: 24px;
+}
+.compare h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.compare ul { list-style: none; padding: 0; }
+.compare li {
+  color: var(--text-dim);
+  font-size: 14px;
+  padding: 6px 0;
+  padding-left: 20px;
+  position: relative;
+}
+.compare li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  opacity: 0.6;
+}
+
+/* Stats row */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 32px 0;
+}
+.stat {
+  background: var(--surface);
+  padding: 24px 20px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+/* Steps */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  margin: 24px 0;
+  padding: 0;
+}
+.steps li {
+  counter-increment: step;
+  padding: 20px 24px 20px 64px;
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.steps li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+}
+.steps li strong {
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+.steps li span {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+/* Diagram */
+.diagram {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px 24px;
+  margin: 24px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+.diagram .node { color: var(--accent); font-weight: 600; }
+.diagram .edge { color: var(--text-faint); }
+.diagram .label { color: var(--text); }
+
+/* Quote/callout */
+.callout {
+  border-left: 2px solid var(--accent);
+  padding: 8px 24px;
+  margin: 32px 0;
+  background: var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+}
+.callout p {
+  color: var(--text);
+  font-style: italic;
+  font-size: 17px;
+  margin: 0;
+}
+.callout .who {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 8px;
+  font-style: normal;
+}
+
+/* Footer */
+footer {
+  margin-top: 120px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+footer a { color: var(--text-dim); text-decoration: none; border-bottom: 1px dashed var(--border-2); padding-bottom: 1px; }
+footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 680px) {
+  main { padding: 40px 20px 100px; }
+  .compare { grid-template-columns: 1fr; }
+  .ascii { font-size: 9px; }
+  .hero { padding: 20px 0 40px; margin-bottom: 40px; }
+  section { margin-bottom: 60px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero">
+  <div class="eyebrow">Pattern · Knowledge graph · Dark arts of personal ops</div>
+
+  <pre class="ascii">   ┌─────────────────────────────┐
+   │  KERNE.md                   │
+   ├─────────────────────────────┤
+   │  ▸ Identitet                │        ┌──▶ CVR register
+   │  ▸ Struktur         ◂───────┼────────┤
+   │  ▸ Økonomi                  │        └──▶ Virk.dk / proff
+   │  ▸ Aktivitet                │
+   │  ▸ Relationer       ◂───────┼────────────▶ Graphify layer
+   │  ▸ Systemer                 │
+   │  ▸ Kilder                   │
+   │  ▸ Historik                 │
+   └─────────────────────────────┘
+             ▲
+             │ YAML frontmatter  →  Dataview queries across vault
+             └──────────────────────────────────────────────</pre>
+
+  <h1>KERNE.md<br><span class="gradient">a schema for personal organizations</span></h1>
+
+  <p class="subtitle">
+    Most of us belong to more organizations than we think we manage — associations, companies, side-projects, boards, employers. The files are scattered across drives, inboxes, and memory. This is a pattern for pulling them into a single, AI-readable layer and turning the relationships into a queryable graph.
+  </p>
+
+  <div class="hero-meta">
+    <span><span class="dot"></span> FIELD NOTE · APR 2026</span>
+    <span>8 organizations mapped</span>
+    <span>~6h of work</span>
+    <span>2 automated sources</span>
+  </div>
+</header>
+
+<section>
+  <div class="section-label">The problem</div>
+  <h2>Chaos is not a file you can grep</h2>
+  <p class="lead">
+    You sit on boards. You run side-projects. You have an employer. Maybe a tiny company nested in there somewhere. Each has its own drive, its own contacts, its own founding story, its own half-remembered board composition. When an AI agent asks "what is this organization", the honest answer is <em>I have no single file that says.</em>
+  </p>
+  <p>
+    The usual symptoms: you re-explain the same basics to every new collaborator, you rely on CVR-lookups and old emails to reconstruct board history, and your LLM-sessions start from zero every time because nothing in your vault is stable enough to point at. The fix isn't better search. It's <strong>one durable file per org</strong> — a kernel — that everything else references.
+  </p>
+</section>
+
+<section>
+  <div class="section-label">The distinction</div>
+  <h2>CLAUDE.md vs KERNE.md</h2>
+  <p>
+    If you use Claude Code or a similar agentic setup, you probably already have CLAUDE.md files scattered across project directories. They answer the question <em>"how should AI behave here?"</em>. KERNE.md answers a different, more stable question: <em>"what IS this organization?"</em>. The two files sit next to each other in the org folder and never compete for territory.
+  </p>
+
+  <div class="compare">
+    <div>
+      <h4>CLAUDE.md · operational</h4>
+      <ul>
+        <li>How AI should work in this folder</li>
+        <li>File paths, tools, commands</li>
+        <li>Tone of voice, language</li>
+        <li>Permissions and taboos</li>
+        <li>Changes when workflow changes</li>
+        <li>Instructional, imperative</li>
+      </ul>
+    </div>
+    <div>
+      <h4>KERNE.md · declarative</h4>
+      <ul>
+        <li>What this organization actually is</li>
+        <li>CVR, legal form, address</li>
+        <li>Board, employees, ownership</li>
+        <li>Financials, relationships, history</li>
+        <li>Changes when reality changes</li>
+        <li>Descriptive, factual</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>
+    Splitting them is the trick. CLAUDE.md can be opinionated and short-lived — it gets rewritten every time you refine how the agent should behave. KERNE.md is slow, factual, and something you <em>verify</em> rather than invent. Different half-lives, different contents, different purposes.
+  </p>
+</section>
+
+<section>
+  <div class="section-label">The schema</div>
+  <h2>Eight sections. One YAML header. That's it.</h2>
+  <p>
+    Every KERNE.md in my org folders has the same skeleton. Sections can be empty or filled — consistency of <em>structure</em> matters more than completeness of content. You can always come back and fill a gap; you can't come back and retroactively imagine a section that wasn't there.
+  </p>
+
+  <pre data-lang="kerne.md">---
+<span class="yaml-key">org</span>: <span class="yaml-val">Foundation Alpha</span>
+<span class="yaml-key">cvr</span>: <span class="yaml-val">XXXXXXXX</span>
+<span class="yaml-key">type</span>: <span class="yaml-val">Forening</span>          <span class="yaml-comment"># Legal form — used for Dataview filters</span>
+<span class="yaml-key">status</span>: <span class="yaml-val">aktiv</span>           <span class="yaml-comment"># aktiv | under-lukning | arkiv</span>
+<span class="yaml-key">stiftet</span>: <span class="yaml-val">2022-06-08</span>
+<span class="yaml-key">hjemsted</span>: <span class="yaml-val">Street 9, City</span>
+<span class="yaml-key">hjemmeside</span>: <span class="yaml-val">https://foundation-alpha.example</span>
+<span class="yaml-key">ansatte</span>: <span class="yaml-val">0</span>
+<span class="yaml-key">opdateret</span>: <span class="yaml-val">2026-04-21</span>     <span class="yaml-comment"># Date of last verification</span>
+<span class="yaml-key">tags</span>: [kerne, organisation]
+---
+
+<span class="header-marker">## 1. Identitet</span>
+<span class="yaml-comment"># Purpose, mission, founding context, target audience</span>
+
+<span class="header-marker">## 2. Struktur</span>
+<span class="yaml-comment"># Legal form, CVR, address, board, employees, branche-code</span>
+
+<span class="header-marker">## 3. Økonomi</span>
+<span class="yaml-comment"># Revenue, income sources, bank, auditor, key metrics</span>
+
+<span class="header-marker">## 4. Aktivitet</span>
+<span class="yaml-comment"># Active projects, recurring events, communication channels</span>
+
+<span class="header-marker">## 5. Relationer</span>
+<span class="yaml-comment"># Partners, sister orgs, host/member relationships, shared infrastructure</span>
+
+<span class="header-marker">## 6. Systemer</span>
+<span class="yaml-comment"># Tech stack, file locations, password manager scope</span>
+
+<span class="header-marker">## 7. Kilder og dokumenter</span>
+<span class="yaml-comment"># Statutes, annual reports, budgets, member lists</span>
+
+<span class="header-marker">## 8. Historik og milepæle</span>
+<span class="yaml-comment"># Timeline entries, date — event</span>
+
+<span class="header-marker">## Åbne spørgsmål</span>
+<span class="yaml-comment"># - [ ] checklist of unknowns — keep this section, never delete it</span></pre>
+
+  <p>
+    The last section — <strong>Åbne spørgsmål</strong> — is the one most people skip, and it's the most valuable. Knowledge about an organization is never complete; the checklist of what you <em>don't</em> know is exactly the prompt you want in front of yourself next time. It's also what tells the AI what to ask you about rather than hallucinate.
+  </p>
+</section>
+
+<section>
+  <div class="section-label">The filling layer</div>
+  <h2>Data sources, in order of trustworthiness</h2>
+  <p>
+    Don't type what you can query. The fastest way to fill a KERNE.md for a Danish organization is to hit three public sources in sequence, then fall back to your own archives for everything they don't cover.
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-number">01 · AUTORITATIV</div>
+      <div class="card-title">CVR API</div>
+      <div class="card-body">
+        Public endpoint (<code>cvrapi.dk</code>). Returns legal form, CVR, address, founding date, employee count, industry code, and for ApS also real owners. Free tier is enough for small batches. Always your first stop — this is the legal ground truth.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-number">02 · OFFICIAL SUPPLEMENT</div>
+      <div class="card-title">Virk.dk / proff.dk</div>
+      <div class="card-body">
+        Annual reports, historical financials (revenue, equity, result), management composition. Erhvervsstyrelsen blocks raw bots but proff.dk exposes the same data in scrapable form. Foreninger often file minimal reports; ApS and A/S always have them.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-number">03 · NARRATIVE</div>
+      <div class="card-title">Organization website</div>
+      <div class="card-body">
+        Mission, tagline, current projects, who's publicly listed as leadership. Good for narrative framing, bad for facts (websites lag reality by 6-18 months). Always cross-check addresses and board composition against CVR.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-number">04 · INTERNAL</div>
+      <div class="card-title">Your own drive</div>
+      <div class="card-body">
+        Vedtægter (statutes), budgets, member lists, meeting minutes. The stuff that never hits the open web. Pulled selectively — not every regnskab, not every agenda — only what you'd reference if a new collaborator joined tomorrow.
+      </div>
+    </div>
+  </div>
+
+  <p>
+    The layering matters. If two sources disagree (e.g. the website says the address is Street A, CVR says Street B), <strong>CVR wins</strong>. You note the discrepancy in section 8 so you can eventually ask someone to update the website. That's the point of <em>verification over invention</em>.
+  </p>
+</section>
+
+<section>
+  <div class="section-label">The graph layer</div>
+  <h2>One file per org is a start. The network is the payoff.</h2>
+  <p>
+    Writing one KERNE.md file is nice. Writing eight of them and running <a href="https://github.com/safishamsi/graphify" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--border-2);">graphify</a> across the folder is where the pattern starts paying rent. Each file mentions people, addresses, partner orgs, projects, funders. Graphify reads them all, extracts nodes and edges, runs community detection, and spits out an interactive HTML graph.
+  </p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">KERNE files</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">81</div>
+      <div class="stat-label">nodes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">94</div>
+      <div class="stat-label">edges</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">communities</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4 min</div>
+      <div class="stat-label">build time</div>
+    </div>
+  </div>
+
+  <p>
+    Small numbers on purpose — this isn't a dataset, it's a <em>life</em>. What matters isn't the size; it's that community detection now surfaces relationships you never consciously catalogued. In my case: an association I chair turned out to co-share a telephone number with an ApS I co-own, because they're technically the same project at different stages of formalization. Nothing in any single file stated that. The graph found it.
+  </p>
+
+  <div class="diagram">                            <span class="node">[org-a]</span>
+                              │
+                   member_of │
+                              ▼
+        <span class="node">[person-x]</span> ──works_at──▶ <span class="node">[org-b]</span> ◂──── <span class="edge">shares phone with</span> ──── <span class="node">[org-c]</span>
+             │                  ▲                                  ▲
+             │                  │                                  │
+             │        co_founded│                   grew_out_of    │
+             ▼                  │                                  │
+        <span class="node">[org-d]</span>              <span class="node">[person-x]</span> ◂──────── co_owns ─────── <span class="node">[org-c]</span>
+             │
+         chairs│
+             ▼
+        <span class="node">[org-e]</span>
+
+        <span class="label">Five orgs, one person — the graph reveals the person's structural role.</span></div>
+
+  <p>
+    The useful output isn't the org graph. It's the <strong>person graph</strong>. When you map yourself across all the orgs you belong to, you see which roles you actually hold and which ones have quietly expanded beyond what you'd admit out loud. That's the conversation the graph forces you to have.
+  </p>
+</section>
+
+<section>
+  <div class="section-label">The auto-generated index</div>
+  <h2>A Dataview query is your dashboard</h2>
+  <p>
+    Because every KERNE.md shares the same frontmatter keys, one Dataview query gives you a live cross-org dashboard. Add a file, fill the frontmatter, and the dashboard updates itself. No manual list maintenance.
+  </p>
+
+  <pre data-lang="dataview">```dataview
+TABLE WITHOUT ID
+  file.link AS "Organization",
+  cvr AS "CVR",
+  type AS "Type",
+  ansatte AS "Employees",
+  status AS "Status",
+  opdateret AS "Last verified"
+FROM "arbejde" OR "organisationer"
+WHERE contains(tags, "kerne")
+SORT opdateret DESC
+```</pre>
+
+  <p>
+    Drop it in a note called <code>organisationer/index.md</code> and it becomes the single place you land whenever someone asks which orgs you're involved in. You can extend it — filter by status, group by legal form, count employees across your network, flag KERNE files that haven't been re-verified in 90 days. The structure earns compound interest.
+  </p>
+</section>
+
+<section>
+  <div class="section-label">Reproduce it</div>
+  <h2>The recipe, end to end</h2>
+  <ol class="steps">
+    <li>
+      <strong>Make one folder per org on your local drive.</strong>
+      <span>Not Google Drive, not OneDrive. A folder you own, on a disk you control, that every tool on your machine can read without auth. Example: <code>D:\organisationer\foundation-alpha\</code></span>
+    </li>
+    <li>
+      <strong>Put a template KERNE.md in each folder.</strong>
+      <span>Eight headings, one YAML block, an <code>Åbne spørgsmål</code> checklist. Fill the frontmatter minimally — name, CVR, status, <code>opdateret</code> — leave the rest empty for now.</span>
+    </li>
+    <li>
+      <strong>Hit the public registries.</strong>
+      <span>For each CVR, pull address, legal form, founding date, employee count. Scripts for this are trivial — curl to cvrapi.dk, parse JSON, write YAML. Two minutes of writing, seven seconds of running.</span>
+    </li>
+    <li>
+      <strong>Supplement from proff.dk for financials.</strong>
+      <span>Revenue, equity, result. Only matters for entities that actually file them (ApS, A/S, large F.M.B.A.). For small foreninger, the CVR file is the whole truth.</span>
+    </li>
+    <li>
+      <strong>Fill Relationer and Systemer from memory.</strong>
+      <span>This is where you slow down. Sister orgs, host relationships, shared phone numbers, tech stack, where the master documents live. No shortcut. Just you, a text editor, and 20 minutes per org.</span>
+    </li>
+    <li>
+      <strong>Run graphify across the folder.</strong>
+      <span>Emit nodes for every person, org, place, and project. Detect communities. Label them. Publish the HTML graph to your Obsidian vault under <code>wiki/research/</code>. This takes one command and produces the map.</span>
+    </li>
+    <li>
+      <strong>Add the Dataview index.</strong>
+      <span>One markdown file, one code block. From now on, it's your main entry point whenever someone asks what you're working on or who you are to any given organization.</span>
+    </li>
+    <li>
+      <strong>Set a quarterly reminder.</strong>
+      <span>Re-verify the CVR and financial fields every three months. Update <code>opdateret</code> in frontmatter. Let the <code>Åbne spørgsmål</code> checklist drive your next round of questions. Treat the KERNE files as living — stale data silently corrupts the graph.</span>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <div class="section-label">The meta-point</div>
+  <h2>Context as infrastructure</h2>
+  <p class="lead">
+    The habit this pattern trains is the real deliverable. You stop treating organizational context as tribal knowledge you happen to carry, and start treating it as infrastructure — versioned, queryable, AI-readable, auditable.
+  </p>
+  <div class="callout">
+    <p>"Never invent what you can verify. Never type what you can query. Never delete a checklist of things you don't know yet."</p>
+    <div class="who">— the three rules that make this work</div>
+  </div>
+  <p>
+    Once you've done it once for your own orgs, the same schema applies to anything that has the same shape: your own companies if you scale, client orgs if you consult, portfolio companies if you invest. The file format is the product. Everything else — dashboards, graphs, AI queries, onboarding docs — composes on top.
+  </p>
+</section>
+
+<footer>
+  <div>KERNE.md · a shareable pattern</div>
+  <div>
+    <a href="https://github.com/larsen-max/showcase">github</a> ·
+    <a href="https://larsen-max.github.io/showcase/">index</a>
+  </div>
+</footer>
+
+</main>
+</body>
+</html>
