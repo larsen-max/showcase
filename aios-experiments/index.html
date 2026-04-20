@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiOS × llm-brain — Four Experiments in Making AI Visible</title>
+<meta property="og:title" content="AiOS × llm-brain — Four Experiments in Making AI Visible">
+<meta property="og:description" content="Four parallel experiments mapping an AI operating system: a React Flow mission control, a Sankey of AI's value chain, a bioluminescent 3D brain, and the consolidated monorepo they all fed into.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://larsen-max.github.io/showcase/aios-experiments/">
+<meta property="og:image" content="https://larsen-max.github.io/showcase/aios-experiments/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="theme-color" content="#22d3ee">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b10;
+    --bg-2: #0c1218;
+    --surface: #101820;
+    --surface-2: #16212c;
+    --border: #1c2833;
+    --border-bright: #24323f;
+    --text: #e4ecf2;
+    --text-dim: #8295a3;
+    --text-faint: #4a5a68;
+    --accent: #22d3ee;
+    --accent-2: #06b6d4;
+    --accent-soft: rgba(34, 211, 238, 0.12);
+    --accent-glow: rgba(34, 211, 238, 0.35);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse 1200px 600px at 50% -200px, rgba(34, 211, 238, 0.10), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 90% 500px, rgba(34, 211, 238, 0.05), transparent 60%),
+      linear-gradient(var(--bg), var(--bg));
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.025) 1px, transparent 0);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ————— Header ————— */
+  header {
+    padding: 80px 0 40px;
+    text-align: center;
+  }
+
+  .ascii {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--accent);
+    opacity: 0.8;
+    white-space: pre;
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s ease;
+    text-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+    animation: fadeUp 0.7s ease 0.05s backwards;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #9fb3c1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: fadeUp 0.7s ease 0.1s backwards;
+  }
+
+  h1 em {
+    font-style: italic;
+    background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle {
+    font-size: 20px;
+    color: var(--text-dim);
+    max-width: 640px;
+    margin: 0 auto 40px;
+    line-height: 1.55;
+    animation: fadeUp 0.7s ease 0.15s backwards;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s ease 0.2s backwards;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  .chip .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  /* ————— Sections ————— */
+  section {
+    padding: 60px 0;
+    animation: fadeUp 0.7s ease;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 4vw, 44px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 18px; color: var(--text-dim); }
+  p strong { color: var(--text); font-weight: 500; }
+  p.lead { font-size: 19px; color: var(--text); line-height: 1.6; }
+
+  /* ————— Premise ————— */
+  .premise {
+    background:
+      radial-gradient(ellipse at top left, rgba(34, 211, 238, 0.06), transparent 50%),
+      var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    margin-bottom: 40px;
+  }
+
+  .premise-quote {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 18px;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .premise-quote::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* ————— Experiment cards ————— */
+  .experiments {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .exp {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+
+  .exp:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .exp::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .exp-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .exp-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 8px;
+  }
+
+  .exp-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .exp-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .exp-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-dim);
+  }
+
+  .exp-question {
+    font-size: 15px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  .exp-body {
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .exp-body p { margin-bottom: 14px; }
+  .exp-body p:last-child { margin-bottom: 0; }
+
+  .exp-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat {
+    text-align: left;
+  }
+
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* ————— ASCII diagram ————— */
+  .diagram {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-dim);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .diagram .hi { color: var(--accent); }
+  .diagram .dim { color: var(--text-faint); }
+
+  /* ————— Arc (narrative) ————— */
+  .arc {
+    position: relative;
+    margin: 48px 0;
+    padding: 32px 0;
+  }
+
+  .arc-track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .arc-track::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--text-faint));
+  }
+
+  .arc-step {
+    position: relative;
+    text-align: center;
+    padding: 0 8px;
+  }
+
+  .arc-dot {
+    width: 25px;
+    height: 25px;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  .arc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+  }
+
+  .arc-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ————— Takeaways ————— */
+  .takeaways {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-top: 32px;
+  }
+
+  .takeaway {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .takeaway-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .takeaway-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .takeaway-text {
+    font-size: 14.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ————— Tech matrix ————— */
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 32px;
+    font-size: 14px;
+  }
+
+  .matrix th,
+  .matrix td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .matrix th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 500;
+    background: var(--surface);
+  }
+
+  .matrix td {
+    color: var(--text-dim);
+  }
+
+  .matrix td:first-child {
+    font-family: 'DM Serif Display', serif;
+    color: var(--accent);
+    font-size: 16px;
+  }
+
+  .matrix tr:hover td { background: var(--surface); }
+
+  /* ————— Footer ————— */
+  footer {
+    padding: 80px 0 60px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+
+  footer p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-faint);
+    letter-spacing: 0.05em;
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* ————— Animation ————— */
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 720px) {
+    header { padding: 60px 0 20px; }
+    .premise { padding: 28px; }
+    .exp { padding: 28px 24px; }
+    .arc-track { grid-template-columns: 1fr; gap: 24px; }
+    .arc-track::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══ HERO ═══ -->
+  <header>
+    <pre class="ascii">      ╭─────────╮  ╭─────────╮  ╭─────────╮  ╭─────────╮
+      │ AiOS 1  │→ │ AiOS 2  │→ │  brain  │→ │ AiOS 3  │
+      │  map    │  │  cost   │  │ explain │  │  ship   │
+      ╰─────────╯  ╰─────────╯  ╰─────────╯  ╰─────────╯
+            mission                                   production</pre>
+
+    <div class="eyebrow">Four parallel experiments · 2025–2026</div>
+
+    <h1>Four experiments in making <em>AI visible</em>.</h1>
+
+    <p class="subtitle">
+      A React Flow mission control, a Sankey diagram of the AI value chain,
+      a bioluminescent 3D brain, and the monorepo they all fed into.
+      Each one answering a different question about the same system.
+    </p>
+
+    <div class="meta-row">
+      <span class="chip"><span class="dot"></span>4 experiments</span>
+      <span class="chip">Vite · React · Three.js · D3</span>
+      <span class="chip">Single-operator workbench</span>
+    </div>
+  </header>
+
+  <!-- ═══ PREMISE ═══ -->
+  <section>
+    <div class="section-label">Premise</div>
+    <h2>Same system, four angles.</h2>
+
+    <div class="premise">
+      <div class="premise-quote">
+        "If I'm going to rely on an AI operating system every day, I need to see it —
+        how it's built, what it costs, how it thinks, and what ships."
+      </div>
+      <p>
+        <strong>AiOS</strong> isn't a single product. It's the name for a stack of files, skills,
+        agents and models that sits on top of Claude Code and shapes how one person works.
+        Over a few months, four visualizations emerged — not as a roadmap, but as answers
+        to questions that kept coming up.
+      </p>
+      <p>
+        Each experiment is a Vite project that runs locally, under a hundred lines of config,
+        with no external dependencies beyond the libraries it needs to do its one job.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ NARRATIVE ARC ═══ -->
+  <section>
+    <div class="section-label">The arc</div>
+    <h2>From mapping to shipping.</h2>
+
+    <p class="lead">
+      The four experiments aren't versions of each other. They're a sequence of
+      <em>different questions</em> — and the answers build on each other.
+    </p>
+
+    <div class="arc">
+      <div class="arc-track">
+        <div class="arc-step">
+          <div class="arc-dot"></div>
+          <div class="arc-label">01 · Map</div>
+          <div class="arc-name">AiOS 1<br><span style="color: var(--text-dim); font-size: 13px;">Mission Control</span></div>
+        </div>
+        <div class="arc-step">
+          <div class="arc-dot"></div>
+          <div class="arc-label">02 · Cost</div>
+          <div class="arc-name">AiOS 2<br><span style="color: var(--text-dim); font-size: 13px;">Value Chain</span></div>
+        </div>
+        <div class="arc-step">
+          <div class="arc-dot"></div>
+          <div class="arc-label">03 · Explain</div>
+          <div class="arc-name">llm-brain<br><span style="color: var(--text-dim); font-size: 13px;">3D Metaphor</span></div>
+        </div>
+        <div class="arc-step">
+          <div class="arc-dot"></div>
+          <div class="arc-label">04 · Ship</div>
+          <div class="arc-name">AiOS 3<br><span style="color: var(--text-dim); font-size: 13px;">Monorepo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ EXPERIMENTS ═══ -->
+  <section>
+    <div class="section-label">The experiments</div>
+    <h2>Four projects, one operator.</h2>
+
+    <div class="experiments">
+
+      <!-- AiOS 1 -->
+      <article class="exp">
+        <div class="exp-header">
+          <div>
+            <div class="exp-id">AiOS 1 · Experiment 01</div>
+            <div class="exp-title">A <em>mission control</em> for an AI operating system.</div>
+          </div>
+          <div class="exp-tags">
+            <span class="tag">React Flow</span>
+            <span class="tag">WebSocket</span>
+            <span class="tag">Express</span>
+          </div>
+        </div>
+
+        <div class="exp-question">▸ What does my AI setup actually look like — and how does it map to me?</div>
+
+        <div class="exp-body">
+          <p>
+            A React Flow graph with <strong>two node sets rendered in the same canvas</strong>:
+            the AI system (Model, Memory, Perception, Reasoning, Skills, Orchestration) and
+            a neuroscience model of the brain (Prefrontal, Parietal, Temporal, Amygdala…).
+            Edges between them encode the analog: <em>memory is hippocampus, skills are cerebellum, the LLM is cortex</em>.
+          </p>
+          <p>
+            An Express + WebSocket backend reads the operator's local filesystem — memory files,
+            skill definitions, sessions, CLAUDE.md configs — and streams real events into the graph.
+            A toggle overlays ADHD severity maps on the brain side, so the visualization doubles
+            as a self-knowledge tool.
+          </p>
+
+          <div class="diagram"><span class="hi">┌────────────────────┐</span>      <span class="hi">┌────────────────────┐</span>
+<span class="hi">│   SYSTEM nodes     │</span>  ←→  <span class="hi">│    BRAIN nodes     │</span>
+<span class="hi">│                    │</span>      <span class="hi">│                    │</span>
+│  Model · Skills    │      │  Cortex · Cerebellum│
+│  Memory · Agents   │      │  Hippocampus · Amg │
+│  Perception · ...  │      │  Prefrontal · ...  │
+<span class="hi">└─────────┬──────────┘</span>      <span class="hi">└─────────┬──────────┘</span>
+          │                           │
+          <span class="dim">└──── computerAnalog ⇄ brainAnalog ────┘</span>
+                    <span class="dim">(connections.js)</span></div>
+
+          <div class="exp-stats">
+            <div class="stat">
+              <div class="stat-value">2</div>
+              <div class="stat-label">Node graphs</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">8</div>
+              <div class="stat-label">System layers</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">500</div>
+              <div class="stat-label">Event buffer</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">Live</div>
+              <div class="stat-label">Filesystem feed</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- AiOS 2 -->
+      <article class="exp">
+        <div class="exp-header">
+          <div>
+            <div class="exp-id">AiOS 2 · Experiment 02</div>
+            <div class="exp-title">A <em>Sankey</em> of what AI actually costs.</div>
+          </div>
+          <div class="exp-tags">
+            <span class="tag">D3 Sankey</span>
+            <span class="tag">Vite</span>
+            <span class="tag">Public talks</span>
+          </div>
+        </div>
+
+        <div class="exp-question">▸ Where does a prompt really begin — and who pays for it?</div>
+
+        <div class="exp-body">
+          <p>
+            A D3 Sankey that traces the AI value chain from <strong>natural resources</strong>
+            — energy, minerals, fresh water — through fabrication, data centers, foundation
+            models, API layers, agent frameworks, and finally a single end user running a prompt.
+            Every flow is cited inline, so the artifact doubles as a sourced argument.
+          </p>
+          <p>
+            Built for non-technical audiences at Bæredygtig Herning and public workshops.
+            The point isn't to guilt anyone — it's to make the <em>invisible stack</em> visible
+            long enough that people stop treating "the AI" as a frictionless service.
+          </p>
+
+          <div class="diagram"><span class="dim">[nature]  →  [fab]    →  [cloud]   →  [model]  →  [you]</span>
+ energy ─┐
+ water ──┼─→ silicon ─→ datacenter ─→ <span class="hi">LLM</span> ──→ prompt
+ cobalt ─┘                            │
+                                      └─→ <span class="hi">agent</span> ─→ skill
+                                                 ↓
+                                            <span class="dim">1 request</span></div>
+
+          <div class="exp-stats">
+            <div class="stat">
+              <div class="stat-value">5</div>
+              <div class="stat-label">Layers traced</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">~0</div>
+              <div class="stat-label">External deps</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">DK</div>
+              <div class="stat-label">Audience</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">Cited</div>
+              <div class="stat-label">Inline sources</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- llm-brain -->
+      <article class="exp">
+        <div class="exp-header">
+          <div>
+            <div class="exp-id">llm-brain · Experiment 03</div>
+            <div class="exp-title">A <em>bioluminescent brain</em> you can orbit.</div>
+          </div>
+          <div class="exp-tags">
+            <span class="tag">Three.js</span>
+            <span class="tag">Blender</span>
+            <span class="tag">8k neurons</span>
+          </div>
+        </div>
+
+        <div class="exp-question">▸ How do you show a neural network to someone who's never seen one?</div>
+
+        <div class="exp-body">
+          <p>
+            A Three.js scene rendering <strong>8,000 neurons</strong> and <strong>47,167 connections</strong>
+            distributed across eight anatomical regions — Prefrontal Cortex, Motor Cortex, Parietal,
+            Temporal, Occipital, Cerebellum, Brain Stem, Amygdala — each color-coded. Activation
+            pulses travel along pre-defined circuits (visual processing, motor planning, memory recall).
+          </p>
+          <p>
+            A <code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 13px;">blender-import.py</code>
+            pipeline ports the same geometry into Blender for high-resolution renders used in
+            printed material. The browser version falls back to a 2D projection on machines
+            without a GPU — because half the audience is presenting from a ten-year-old laptop.
+          </p>
+          <p>
+            The payoff is the handshake: <em>"an LLM is a brain-shape, just made of math instead of tissue."</em>
+            Not literally true. Useful anyway.
+          </p>
+
+          <div class="exp-stats">
+            <div class="stat">
+              <div class="stat-value">8,000</div>
+              <div class="stat-label">Neurons</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">47,167</div>
+              <div class="stat-label">Connections</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">8</div>
+              <div class="stat-label">Brain regions</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">&lt; 5 MB</div>
+              <div class="stat-label">Payload cap</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- AiOS 3 -->
+      <article class="exp">
+        <div class="exp-header">
+          <div>
+            <div class="exp-id">AiOS 3 · Experiment 04</div>
+            <div class="exp-title">The <em>monorepo</em> where the experiments become product.</div>
+          </div>
+          <div class="exp-tags">
+            <span class="tag">Monorepo</span>
+            <span class="tag">Supabase</span>
+            <span class="tag">ai-core</span>
+          </div>
+        </div>
+
+        <div class="exp-question">▸ What survives when you commit to shipping it?</div>
+
+        <div class="exp-body">
+          <p>
+            AiOS 3 is the consolidated home for production-bound work. A strict monorepo
+            split: <strong>apps</strong> for interfaces (web, admin), <strong>services</strong> for
+            the API and integrations, and <strong>packages</strong> for the shared primitives —
+            UI, types, and an <em>ai-core</em> that owns every prompt and model-routing decision.
+          </p>
+          <p>
+            One rule matters more than the others: <strong>packages never import from apps</strong>.
+            The dependency graph points one way. This is the lesson carried forward from AiOS 1 —
+            when every piece can reach every other piece, the system stops being legible, and
+            you're back to needing a React Flow dashboard just to find where a prompt lives.
+          </p>
+
+          <div class="diagram"><span class="hi">apps/</span>
+├── web/        <span class="dim">// end-user interface</span>
+└── admin/      <span class="dim">// backoffice</span>
+
+<span class="hi">services/</span>
+└── api/        <span class="dim">// backend + integrations</span>
+
+<span class="hi">packages/</span>  <span class="dim">// ← one-way imports only</span>
+├── ui/            <span class="dim">// shared components</span>
+├── ai-core/       <span class="dim">// prompts, routing, tools</span>
+└── shared-types/  <span class="dim">// contracts</span></div>
+
+          <div class="exp-stats">
+            <div class="stat">
+              <div class="stat-value">6</div>
+              <div class="stat-label">Workspaces</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">1-way</div>
+              <div class="stat-label">Dep direction</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">ai-core</div>
+              <div class="stat-label">Single source</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">Slice</div>
+              <div class="stat-label">Migration unit</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ═══ TECH MATRIX ═══ -->
+  <section>
+    <div class="section-label">Side-by-side</div>
+    <h2>Tech picks, where they land.</h2>
+
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Primary lib</th>
+          <th>Role</th>
+          <th>Ships in</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AiOS 1</td>
+          <td>@xyflow/react + Express</td>
+          <td>Live system map</td>
+          <td>Browser + WS feed</td>
+        </tr>
+        <tr>
+          <td>AiOS 2</td>
+          <td>d3 · d3-sankey</td>
+          <td>Cost narrative</td>
+          <td>Static site, cited</td>
+        </tr>
+        <tr>
+          <td>llm-brain</td>
+          <td>three.js (+ Blender)</td>
+          <td>Explanatory metaphor</td>
+          <td>WebGL with 2D fallback</td>
+        </tr>
+        <tr>
+          <td>AiOS 3</td>
+          <td>npm workspaces · Supabase</td>
+          <td>Production surface</td>
+          <td>apps/web · apps/admin</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══ TAKEAWAYS ═══ -->
+  <section>
+    <div class="section-label">What carried over</div>
+    <h2>Four small projects, four ideas that stuck.</h2>
+
+    <div class="takeaways">
+      <div class="takeaway">
+        <div class="takeaway-num">01</div>
+        <div class="takeaway-title">Visualize before you ship.</div>
+        <div class="takeaway-text">
+          AiOS 1 kept revealing connections that looked fine in code and wrong on a canvas.
+          If a system's mental model doesn't survive being drawn, the model is wrong.
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">02</div>
+        <div class="takeaway-title">Cost is a first-class view.</div>
+        <div class="takeaway-text">
+          AiOS 2 made "just one more agent" feel different after watching energy and water
+          flow into the same diagram. The Sankey stays — even inside technical reviews.
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">03</div>
+        <div class="takeaway-title">Metaphor is a tool.</div>
+        <div class="takeaway-text">
+          llm-brain isn't accurate neuroscience. It is an honest handle for people who'd
+          otherwise check out. A wrong-but-useful picture beats a correct-but-ignored one.
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">04</div>
+        <div class="takeaway-title">One-way imports.</div>
+        <div class="takeaway-text">
+          AiOS 3's strictest rule — packages never reach into apps — is the simplest thing
+          that kept the map from collapsing again. Most architecture is just direction.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <p>
+      Built in a single workbench · Vite × Claude Code<br>
+      <a href="https://larsen-max.github.io/showcase/">larsen-max.github.io/showcase</a>
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>
